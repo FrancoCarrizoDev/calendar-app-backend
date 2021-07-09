@@ -1,53 +1,112 @@
 const {validationResult} = require('express-validator')
+const User = require('../models/User')
+const bcrypt = require('bcrypt')
+const { countDocuments } = require('../models/User')
+const { generateJWT } = require('../helpers/jwt')
+const createUser = async(req, res) => {
 
-const createUser = (req, res) => {
+    const { email, password} = req.body
 
-    const {name, email, password} = req.body
 
-    const errors = validationResult(req)
+    try {
 
-    if(!errors.isEmpty()){
-        return res.status(400).json({
+        let user = await User.findOne({email})
+
+        if(user){
+            return res.status(400).json({
+                ok: false,
+                msg: 'Un usuario existe con ese correo'
+            })
+        }
+
+        user = new User(req.body)
+
+        //Encriptar contraseña
+
+        const salt = bcrypt.genSaltSync()
+        user.password = bcrypt.hashSync(password, salt)
+
+        await user.save()
+
+        // Generar JWT
+        const token = await generateJWT(user.id, user.name)
+
+        res.status(201).json({
+            ok: true,
+            uid: user.id,
+            name: user.name,
+            token
+        })
+    } catch (error) {
+        res.status(500).json({
             ok: false,
-            errors: errors.mapped()
+            msg: 'Por favor hable con el administrador'
         })
     }
 
-    res.status(201).json({
-        ok: true,
-        msg: 'registro',
-        name,
-        email,
-        password
-    })
 }
 
-const loginUser = (req, res) => {
+const loginUser = async(req, res) => {
 
     const {email, password} = req.body
 
-    const errors = validationResult(req)
+    try {
 
-    if(!errors.isEmpty()){
-        return res.status(400).json({
+        const user = await User.findOne({email})
+
+        if(!user){
+            return res.status(400).json({
+                ok: false,
+                msg: 'Usuario o contraseña incorrecta'
+            })
+        }
+
+        // Confirmar los passwords
+
+        const validPassword = bcrypt.compareSync(password, user.password)
+        
+        if(!validPassword){
+            return res.status(400).json({
+                ok: false,
+                msg: 'User or password wrong'
+            })
+        }
+
+        // Generar nuestro JWT
+
+        const token = await generateJWT(user.id, user.name)
+
+
+        res.json({
+            ok: true,
+            uid: user.id,
+            name: user.name,
+            token
+        })
+
+
+    } catch (error) {
+        res.status(500).json({
             ok: false,
-            errors: errors.mapped()
+            msg: 'Por favor hable con el administrador'
         })
     }
 
 
-    res.status(200).json({
-        ok: true,
-        msg: 'login',
-        email,
-        password
-    })
 }
 
-const renewToken = (req, res) => {
+const renewToken = async(req, res) => {
+
+    const uid = req.uid
+    const name = req.name
+
+    const token = await generateJWT(uid, name)
+
     res.json({
         ok: true,
-        msg: 'renew'
+        uid,
+        name,
+        token
     })
 }
 
