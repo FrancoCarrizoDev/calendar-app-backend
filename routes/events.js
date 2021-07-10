@@ -1,21 +1,21 @@
 // Obtener eventos
 // Tienen que estar validadas
-const { Router } = require('express');
-const router = Router();
-const { validateJWT } = require('../middlewares/validateJWT');
+const { Router } = require('express')
+const router = Router()
+const { validateJWT } = require('../middlewares/validateJWT')
 const {
     getEvents,
     updateEvents,
     addEvents,
     deleteEvents
-} = require('../controllers/events');
-const { check } = require('express-validator');
-const { validateFields } = require('../middlewares/validateFields');
-const { isDate } = require('../helpers/isDate');
+} = require('../controllers/events')
+const { check } = require('express-validator')
+const { validateFields } = require('../middlewares/validateFields')
+const { isDate } = require('../helpers/isDate')
 
-router.use(validateJWT);
+router.use(validateJWT)
 
-router.get('/', getEvents);
+router.get('/', getEvents)
 
 // Crear Evento
 
@@ -28,14 +28,14 @@ router.post(
         validateFields
     ],
     addEvents
-);
+)
 
 // Actualizar Evento
 
-router.put('/:id', updateEvents);
+router.put('/:id', updateEvents)
 
 // Borrar Evento
 
-router.delete('/:id', deleteEvents);
+router.delete('/:id', deleteEvents)
 
-module.exports = router;
+module.exports = router

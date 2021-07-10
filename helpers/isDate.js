@@ -1,18 +1,18 @@
-const moment = require('moment');
+const moment = require('moment')
 
 const isDate = (value) => {
     if (!value) {
-        return false;
+        return false
     }
 
-    const date = moment(value);
+    const date = moment(value)
     if (date.isValid()) {
-        return true;
+        return true
     } else {
-        return false;
+        return false
     }
-};
+}
 
 module.exports = {
     isDate
-};
+}
