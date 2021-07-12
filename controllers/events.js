@@ -17,13 +17,13 @@ const addEvents = async (req, res = response) => {
         event.user = req.uid
         const eventSaved = await event.save()
         return res.status(200).json({
-            error: false,
+            ok: true,
             eventSaved
         })
     } catch (error) {
         console.log(error)
         return res.status(500).json({
-            error: true,
+            ok: false,
             msg: 'Hable con el administrador'
         })
     }
